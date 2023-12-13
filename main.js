@@ -76,7 +76,7 @@ const player = {
 };
 
 const viruses = [];
-const virusSpeed = 1;
+let virusSpeed = 1;
 
 let score = 0;
 
@@ -109,7 +109,7 @@ function drawVirus(x, y, radius, color) {
 function drawScore() {
   ctx.font = "20px Arial";
   ctx.fillStyle = "#000";
-  ctx.fillText("Score: " + score, canvas.width - 80, 30);
+  ctx.fillText("Score: " + score, 50, 30);
 }
 
 function movePlayer(direction) {
@@ -169,9 +169,12 @@ function checkCollisions() {
 }
 
 function updateScore() {
-  // Menghapus skor sebelumnya untuk menggambar skor yang diperbarui
   ctx.clearRect(canvas.width - 80, 0, 80, 30);
   drawScore();
+
+  if (score % 40 === 0 || score % 20 === 0) {
+    virusSpeed += 3;
+  }
 }
 
 function playVirusHitSound(variant) {
@@ -216,3 +219,4 @@ setInterval(() => {
 }, 1000);
 
 draw();
+console.log(virusSpeed);
