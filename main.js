@@ -60,6 +60,7 @@
 
 const gameWrapper = document.getElementById("gameWrapper");
 const canvas = document.getElementById("gameCanvas");
+canvas.style.background = "aquamarine";
 const ctx = canvas.getContext("2d");
 const virusHitSound = document.getElementById("virusHitSound");
 
@@ -70,7 +71,7 @@ playerImage.id = "playerImage";
 const player = {
   x: canvas.width / 2,
   y: canvas.height - 30,
-  width: 50,
+  width: 75,
   height: 50,
   speed: 20,
 };
@@ -79,8 +80,11 @@ const viruses = [];
 let virusSpeed = 1;
 
 let score = 0;
+let time = 60;
+let timeInterval = setInterval(() => updateTime(), 1000); // Store the interval ID in a variable
 
 const variantPoints = {
+  // Virus Type
   Alpha: 1,
   Beta: 2,
   Gamma: 3,
@@ -89,6 +93,7 @@ const variantPoints = {
 };
 
 function drawPlayer() {
+  // Draw Player
   ctx.drawImage(
     playerImage,
     player.x - player.width / 2,
@@ -99,6 +104,7 @@ function drawPlayer() {
 }
 
 function drawVirus(x, y, radius, color) {
+  // Draw Virus
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
   ctx.fillStyle = color;
@@ -107,9 +113,27 @@ function drawVirus(x, y, radius, color) {
 }
 
 function drawScore() {
+  // Draw Score
   ctx.font = "20px Arial";
   ctx.fillStyle = "#000";
   ctx.fillText("Score: " + score, 50, 30);
+}
+
+function drawTime() {
+  // Format Time
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+
+  ctx.font = "20px Arial";
+  ctx.fillStyle = "#000";
+  ctx.fillText(
+    `Time: ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+      2,
+      "0"
+    )}`,
+    canvas.width - 150,
+    30
+  );
 }
 
 function movePlayer(direction) {
@@ -124,12 +148,13 @@ function movePlayer(direction) {
 }
 
 function createVirus(variant) {
-  // Create Varian
+  // Create Virus
   const x = Math.random() * canvas.width;
   const y = -30;
   const radius = 15;
   let color;
 
+  // The Variant Still Temporary
   switch (variant) {
     case "Alpha":
       color = "#FF0000"; // Merah
@@ -155,6 +180,7 @@ function createVirus(variant) {
 }
 
 function checkCollisions() {
+  // Check if the virus hit the basket or not
   for (let i = 0; i < viruses.length; i++) {
     const virus = viruses[i];
     const distance = Math.sqrt(
@@ -163,25 +189,44 @@ function checkCollisions() {
     if (distance < virus.radius + player.width / 2) {
       viruses.splice(i, 1);
       playVirusHitSound(virus.variant);
-      break; // Hentikan iterasi setelah menemukan tabrakan
+      break;
     }
   }
 }
 
 function updateScore() {
+  // Update Score when virus hit the basket
   ctx.clearRect(canvas.width - 80, 0, 80, 30);
   drawScore();
 
   if (score % 40 === 0 || score % 20 === 0) {
-    virusSpeed += 3;
+    virusSpeed += 5;
   }
 }
 
 function playVirusHitSound(variant) {
+  // Play Sound when virus hit the basket
   virusHitSound.currentTime = 0;
   virusHitSound.play();
-  score += variantPoints[variant]; // Tambahkan skor sesuai dengan varian virus
-  updateScore(); // Memanggil updateScore setelah memutar suara
+  score += variantPoints[variant];
+  updateScore();
+}
+
+function updateTime() {
+  // Update Time
+  ctx.clearRect(canvas.width - 150, 0, 150, 30);
+  drawTime();
+
+  if (time <= 0) {
+    endGame();
+  } else {
+    time -= 1;
+  }
+}
+
+function changeTimeInterval(newInterval) {
+  clearInterval(timeInterval);
+  timeInterval = setInterval(() => updateTime(), newInterval);
 }
 
 function draw() {
@@ -193,15 +238,20 @@ function draw() {
     drawVirus(virus.x, (virus.y += virusSpeed), virus.radius, virus.color);
 
     if (virus.y > canvas.height + virus.radius) {
-      // Virus melewati layar, hapus dari array
       viruses.splice(index, 1);
     }
   });
 
   checkCollisions();
   drawScore();
+  drawTime();
 
   requestAnimationFrame(draw);
+}
+
+function endGame() {
+  alert("Game Over! Your score: " + score);
+  window.location.reload();
 }
 
 document.addEventListener("keydown", function (event) {
@@ -219,4 +269,3 @@ setInterval(() => {
 }, 1000);
 
 draw();
-console.log(virusSpeed);
