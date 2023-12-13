@@ -1,16 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virus Catcher</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Virus Catcher Game</title>
+    <style>
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        #playerImage {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
 </head>
+
 <body>
-    
-    <canvas id="game-pages" width="100" height="100"></canvas>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <p id="score">Score: 0</p>
+    <audio id="virusHitSound" src="assets/tangkap.wav" preload="auto"></audio>
 
 
-    <script src="main.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 </body>
+
 </html>
