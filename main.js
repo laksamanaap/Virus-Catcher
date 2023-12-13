@@ -58,30 +58,35 @@
 // let circle = new Circle(100, 100, 40, "red", "red", counter_num); // Create new instance / object of Circle
 // circle.draw(ctx); // Aplying draw function in circle
 
+const gameWrapper = document.getElementById("gameWrapper");
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const scoreElement = document.getElementById("score");
 const virusHitSound = document.getElementById("virusHitSound");
 
-canvas.style.background = "aquamarine";
-
 const playerImage = new Image();
-playerImage.src = "assets/basket.png"; // Ganti dengan path gambar basket.png
-playerImage.id = "playerImage"; // Menambahkan id untuk gaya CSS
+playerImage.src = "assets/basket.png";
+playerImage.id = "playerImage";
 
 const player = {
   x: canvas.width / 2,
   y: canvas.height - 30,
-  width: 50, // Sesuaikan dengan lebar gambar
-  height: 50, // Sesuaikan dengan tinggi gambar
+  width: 50,
+  height: 50,
   speed: 20,
 };
 
 const viruses = [];
-const virusRadius = 15;
 const virusSpeed = 1;
 
 let score = 0;
+
+const variantPoints = {
+  Alpha: 1,
+  Beta: 2,
+  Gamma: 3,
+  Delta: 4,
+  Omicron: 5,
+};
 
 function drawPlayer() {
   ctx.drawImage(
@@ -93,14 +98,18 @@ function drawPlayer() {
   );
 }
 
-function drawViruses() {
-  for (const virus of viruses) {
-    ctx.beginPath();
-    ctx.arc(virus.x, virus.y, virusRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#F00";
-    ctx.fill();
-    ctx.closePath();
-  }
+function drawVirus(x, y, radius, color) {
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.closePath();
+}
+
+function drawScore() {
+  ctx.font = "20px Arial";
+  ctx.fillStyle = "#000";
+  ctx.fillText("Score: " + score, canvas.width - 80, 30);
 }
 
 function movePlayer(direction) {
@@ -114,10 +123,35 @@ function movePlayer(direction) {
   }
 }
 
-function createVirus() {
+function createVirus(variant) {
+  // Create Varian
   const x = Math.random() * canvas.width;
-  const y = -virusRadius;
-  viruses.push({ x, y });
+  const y = -30;
+  const radius = 15;
+  let color;
+
+  switch (variant) {
+    case "Alpha":
+      color = "#FF0000"; // Merah
+      break;
+    case "Beta":
+      color = "#00FF00"; // Hijau
+      break;
+    case "Gamma":
+      color = "#0000FF"; // Biru
+      break;
+    case "Delta":
+      color = "#FFFF00"; // Kuning
+      break;
+    case "Omicron":
+      color = "#FFA500"; // Oranye
+      break;
+    default:
+      color = "#000000"; // Hitam (default)
+      break;
+  }
+
+  viruses.push({ x, y, radius, color, variant });
 }
 
 function checkCollisions() {
@@ -126,36 +160,43 @@ function checkCollisions() {
     const distance = Math.sqrt(
       (player.x - virus.x) ** 2 + (player.y - virus.y) ** 2
     );
-    if (distance < virusRadius + player.width / 2) {
-      // When virus hit basket
+    if (distance < virus.radius + player.width / 2) {
       viruses.splice(i, 1);
-      score += 10;
-      updateScore();
-      
-      console.log(score);
+      playVirusHitSound(virus.variant);
+      break; // Hentikan iterasi setelah menemukan tabrakan
     }
   }
 }
 
 function updateScore() {
-  // Update Score
-  scoreElement.textContent = "Score: " + score;
+  // Menghapus skor sebelumnya untuk menggambar skor yang diperbarui
+  ctx.clearRect(canvas.width - 80, 0, 80, 30);
+  drawScore();
+}
+
+function playVirusHitSound(variant) {
+  virusHitSound.currentTime = 0;
+  virusHitSound.play();
+  score += variantPoints[variant]; // Tambahkan skor sesuai dengan varian virus
+  updateScore(); // Memanggil updateScore setelah memutar suara
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawPlayer();
-  drawViruses();
-
-  checkCollisions();
 
   viruses.forEach((virus, index) => {
-    virus.y += virusSpeed;
-    if (virus.y > canvas.height + virusRadius) {
+    drawVirus(virus.x, (virus.y += virusSpeed), virus.radius, virus.color);
+
+    if (virus.y > canvas.height + virus.radius) {
+      // Virus melewati layar, hapus dari array
       viruses.splice(index, 1);
     }
   });
+
+  checkCollisions();
+  drawScore();
 
   requestAnimationFrame(draw);
 }
@@ -168,6 +209,10 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
-setInterval(createVirus, 1000);
+setInterval(() => {
+  const variants = ["Alpha", "Beta", "Gamma", "Delta", "Omicron"];
+  const randomVariant = variants[Math.floor(Math.random() * variants.length)];
+  createVirus(randomVariant);
+}, 1000);
 
 draw();

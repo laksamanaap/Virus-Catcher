@@ -11,17 +11,23 @@
             margin: 0 auto;
         }
 
-        #playerImage {
-            display: block;
-            margin: 0 auto;
+        #gameWrapper {
+            position: relative;
+        }
+
+        #score {
+            display: none;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
-    <p id="score">Score: 0</p>
-    <audio id="virusHitSound" src="assets/tangkap.wav" preload="auto"></audio>
+    <div id="gameWrapper">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <p id="score">Score: 0</p>
+        <audio id="virusHitSound" src="assets/tangkap.wav" preload="auto"></audio>
+    </div>
 
 
     <script type="text/javascript" src="main.js"></script>
