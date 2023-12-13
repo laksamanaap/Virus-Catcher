@@ -250,8 +250,13 @@ function draw() {
 }
 
 function endGame() {
-  alert("Game Over! Your score: " + score);
-  window.location.reload();
+  // User Confirmation (Restart Game)
+  const userResponse = confirm(
+    "Game Over! Your score: " + score + "\nRestart the game?"
+  );
+  if (userResponse) {
+    window.location.reload();
+  }
 }
 
 document.addEventListener("keydown", function (event) {
